@@ -1,0 +1,19 @@
+export type OpenAPISchemas = {
+  <% Object.keys(it.apiGroups || {}).forEach(method => { _%>
+  <%= method %>: {
+    <% Object.keys(it.apiGroups[method] || {}).forEach(path => { _%>
+      <%_ var { queryList, paramList, ...operation } = it.apiGroups[method][path] _%>
+    '<%= path %>': {
+      queries: {
+        <% queryList.forEach(query => { _%>
+        '<%= query.name %>'<% if (!query.required) { _%>?<% } %>: <%~ include('./partials/schema.any.eta', query.schema) %>,
+      <% }) _%>
+      },
+      response: {
+        
+      }
+    },
+    <% }) _%>
+  },
+  <% }) _%>
+}

@@ -1,0 +1,8 @@
+<% if (it.dataPath) { %>
+ extends {
+  <% it.dataPath.forEach((path, index) => { %>
+    <%= path %>?: <% if (index !== it.dataPath.length - 1) {
+      %>{ <% } else { %>any<% } %>
+  <% }) %>
+  <% it.dataPath.forEach(_ => { %> } <% }) %>
+<% } %>

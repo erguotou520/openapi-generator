@@ -1,0 +1,5 @@
+<% Object.keys(it.requestBodies || {}).forEach(key => { %>
+  <% var entity = it.requestBodies[key]
+    var schema = entity.content['application/json'].schema
+  %>export type <%= it.fixKey(key) %> = <%~ include('./schema.any.eta', schema) %> & BasicDto
+<% }) %>

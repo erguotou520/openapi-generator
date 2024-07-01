@@ -1,0 +1,8 @@
+{
+<% Object.keys(it.obj.properties || {}).forEach(key => {
+%><% var item = it.obj.properties[key] %>
+  <%~ include('./schema.comment.eta', item) %>
+  <%= key %><% if (item.required || !(it.obj.required || []).includes(key)) {
+  %>?<% } %>: <%~ include('./schema.any.eta', item) %>,
+<% }) %>
+}

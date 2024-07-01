@@ -1,0 +1,30 @@
+<% var content = it.requestBody && (it.requestBody.content || it.requestBody.$ref) %>
+<% var body = content && (it.requestBody.$ref ? it.requestBody : ((content['application/json'] && content['application/json'].schema) || (content['multipart/form-data'] && content['multipart/form-data'].schema))) || null %>
+<% if (!it.paramList.length && !it.queryList.length && !body) { %>
+args?: any
+<% } else { %>
+  args: <% /* params */ %>
+  <% if (it.paramList.length) { %>
+  {
+  <% it.paramList.forEach(path => { %>
+    <%~ include('./schema.comment.eta', path) %>
+    <%= path.name %>: <%~ include('./schema.any.eta', path.schema ) %>
+
+  <% }) %>
+  }<% if (it.queryList.length || body) { %> & <% } %>
+  <% } %>
+  <% /* query */ %>
+  <% if (it.queryList.length) { %>
+  {
+  <% it.queryList.forEach(query => { %>
+    <%~ include('./schema.comment.eta', query) %>
+    <%= query.name %><%= query.required ? '' : '?' %>: <%~ include('./schema.any.eta', query.schema ) %>
+
+  <% }) %>
+  }<% if (body) { %> & <% } %>
+  <% } %>
+  <% /* body */ %>
+  <% if (body) { %>
+  <%~ include('./schema.any.eta', body) %>
+  <% } %>
+<% } %>

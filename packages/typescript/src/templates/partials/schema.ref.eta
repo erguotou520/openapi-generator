@@ -1,0 +1,2 @@
+<% var splited = it.ref.split('/') %>
+APISchemas.<%= (splited[splited.length - 1]).replace(/[.]/g, '_') %>

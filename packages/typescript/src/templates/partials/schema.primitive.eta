@@ -1,0 +1,6 @@
+<% /* <%= it.type === 'integer' ? 'number' : it.type %> */ %>
+<% if (['number', 'integer'].includes(it.type)) {
+%>number<% } else if (it.type === 'boolean') {
+%>boolean<% } else if (it.type === 'string') {
+%><%= it.format === 'binary' ? 'File' : 'string'
+%><% } %>

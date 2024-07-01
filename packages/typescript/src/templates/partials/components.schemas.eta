@@ -1,0 +1,9 @@
+<% Object.keys(it.schemas || {}).forEach(key => { %>
+  <% var schema = it.schemas[key]
+  %>export type <%= it.fixKey(key) %> = <% if('$ref' in schema) { %>
+    = <% =schema['$ref'] %>
+  <% } else { %>
+    <%~ include('./schema.object.eta', { obj: schema }) %>
+  <% } %> & BasicDto
+
+<% }) %>

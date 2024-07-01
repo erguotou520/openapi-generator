@@ -1,0 +1,16 @@
+{
+  "workspaces": ["packages/*"],
+  "dependencies": {
+    "eta": "^3.4.0",
+    "ora": "^8.0.1",
+    "swagger2openapi": "^7.0.8"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.8.3",
+    "@doremijs/biome-config": "^0.1.4",
+    "@types/node": "^20.14.9",
+    "@types/swagger2openapi": "^7.0.4",
+    "openapi-types": "^12.1.3",
+    "typescript": "^5.5.2"
+  }
+}

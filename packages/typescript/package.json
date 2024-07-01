@@ -1,0 +1,11 @@
+{
+  "name": "@doremijs/openapi-typescript-generator",
+  "scripts": {
+    "dev": "bun bin/o2t.ts --watch src/index.ts",
+    "build": "bun build "
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

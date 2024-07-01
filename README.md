@@ -1,0 +1,3 @@
+# OpenAPI Generator
+
+- TypeScript generator

@@ -1,101 +1,105 @@
 export type OpenAPISchemas = {
   get: {
-    '/health': {
-      queries: {
+        '/health': {
+      query: {
         },
-      response: {
-        
-      }
-    },
-    '/api/notary/': {
-      queries: {
+      params: {
         },
-      response: {
-        
-      }
+      response: ''
     },
-    '/api/notary/detail/{id}': {
-      queries: {
+        '/api/notary/': {
+      query: {
         },
-      response: {
-        
-      }
+      params: {
+        },
+      response: ''
     },
-    '/api/s3/presignedUrl': {
-      queries: {
+        '/api/notary/detail/{id}': {
+      query: {
+        },
+      params: {
+        'id': string,
+      },
+      response: ''
+    },
+        '/api/s3/presignedUrl': {
+      query: {
         'fileName': string,
       },
-      response: {
-        
-      }
+      params: {
+        },
+      response: ''
     },
-    '/api/s3/viewUrl': {
-      queries: {
+        '/api/s3/viewUrl': {
+      query: {
         'fileName': string,
       },
-      response: {
-        
-      }
-    },
-    '/api/s3/templates': {
-      queries: {
+      params: {
         },
-      response: {
-        
-      }
+      response: ''
     },
-    '/api/me': {
-      queries: {
+        '/api/s3/templates': {
+      query: {
         },
-      response: {
-        
-      }
+      params: {
+        },
+      response: ''
+    },
+        '/api/me': {
+      query: {
+        },
+      params: {
+        },
+      response: ''
     },
     },
   post: {
-    '/api/auth/login': {
-      queries: {
+        '/api/auth/login': {
+      query: {
         },
-      response: {
-        
-      }
+      params: {
+        },
+      response: ''
     },
-    '/api/notary/': {
-      queries: {
+        '/api/notary/': {
+      query: {
         },
-      response: {
-        
-      }
+      params: {
+        },
+      response: ''
     },
-    '/api/notary/parse-variables/{id}': {
-      queries: {
+        '/api/notary/parse-variables/{id}': {
+      query: {
         },
-      response: {
-        
-      }
+      params: {
+        'id': string,
+      },
+      response: ''
     },
-    '/api/notary/generate-word/{id}': {
-      queries: {
+        '/api/notary/generate-word/{id}': {
+      query: {
         },
-      response: {
-        
-      }
+      params: {
+        'id': string,
+      },
+      response: ''
     },
-    '/api/tingwu/callback': {
-      queries: {
+        '/api/tingwu/callback': {
+      query: {
         },
-      response: {
-        
-      }
+      params: {
+        },
+      response: ''
     },
     },
   delete: {
-    '/api/notary/remove/{id}': {
-      queries: {
+        '/api/notary/remove/{id}': {
+      query: {
         },
-      response: {
-        
-      }
+      params: {
+        'id': string,
+      },
+      response: ''
     },
     },
   }

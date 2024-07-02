@@ -2,16 +2,22 @@ export type OpenAPISchemas = {
   <% Object.keys(it.apiGroups || {}).forEach(method => { _%>
   <%= method %>: {
     <% Object.keys(it.apiGroups[method] || {}).forEach(path => { _%>
-      <%_ var { queryList, paramList, ...operation } = it.apiGroups[method][path] _%>
+      <%_ var { queryList, paramList, requestBody, ...operation } = it.apiGroups[method][path] _%>
+      <%_ var content = requestBody && (requestBody.content || requestBody.$ref) %>
+      <%_ var body = content && (requestBody.$ref ? requestBody : ((content['application/json'] && content['application/json'].schema) || (content['multipart/form-data'] && content['multipart/form-data'].schema))) || null %>
     '<%= path %>': {
-      queries: {
+      query: {
         <% queryList.forEach(query => { _%>
         '<%= query.name %>'<% if (!query.required) { _%>?<% } %>: <%~ include('./partials/schema.any.eta', query.schema) %>,
       <% }) _%>
       },
-      response: {
-        
-      }
+      params: {
+        <% paramList.forEach(param => { _%>
+        '<%= param.name %>'<% if (!param.required) { _%>?<% } %>: <%~ include('./partials/schema.any.eta', param.schema) %>,
+      <% }) _%>
+      },
+      body: <% include('./partials/schema.any.eta', body) %>',
+      response: ''
     },
     <% }) _%>
   },

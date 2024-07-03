@@ -3,7 +3,7 @@
   %>export type <%= it.fixKey(key) %> = <% if('$ref' in schema) { %>
     = <% =schema['$ref'] %>
   <% } else { %>
-    <%~ include('./schema.object.eta', { obj: schema }) %>
+    <% include('./schema.object.eta', { obj: schema }) %>
   <% } %> & BasicDto
 
 <% }) %>

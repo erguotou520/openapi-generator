@@ -8,15 +8,15 @@ export type OpenAPISchemas = {
     '<%= path %>': {
       query: {
         <% queryList.forEach(query => { _%>
-        '<%= query.name %>'<% if (!query.required) { _%>?<% } %>: <%~ include('./partials/schema.any.eta', query.schema) %>,
+        '<%= query.name %>'<% if (!query.required) { _%>?<% } %>: <% include('./partials/schema.any.eta', query.schema) %>,
       <% }) _%>
       },
       params: {
         <% paramList.forEach(param => { _%>
-        '<%= param.name %>'<% if (!param.required) { _%>?<% } %>: <%~ include('./partials/schema.any.eta', param.schema) %>,
+        '<%= param.name %>'<% if (!param.required) { _%>?<% } %>: <% include('./partials/schema.any.eta', param.schema) %>,
       <% }) _%>
       },
-      body: <% include('./partials/schema.any.eta', body) %>',
+      body: <% if (body) { _%><% include('./partials/schema.any.eta', body) %><% } else { _%>null<% } %>,
       response: ''
     },
     <% }) _%>

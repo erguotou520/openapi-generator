@@ -1,8 +1,6 @@
 {
   "workspaces": ["packages/*"],
   "dependencies": {
-    "eta": "^3.4.0",
-    "ora": "^8.0.1",
     "swagger2openapi": "^7.0.8"
   },
   "devDependencies": {

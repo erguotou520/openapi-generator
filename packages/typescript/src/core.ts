@@ -1,12 +1,10 @@
 import { resolve } from 'node:path'
-import { Eta } from 'eta'
 import type { OpenAPIV3 } from 'openapi-types'
 import { fetchOpenAPISchema } from './fetcher'
 import { saveTextToFile } from './file'
-import { fixKey, trimKey } from './helpers'
+import { prettier } from './prettier'
+import { generateOpenAPISchemas } from './renders/schema'
 import type { GenerateOptions } from './types'
-
-const eta = new Eta({ views: resolve(__dirname, 'templates') })
 
 export async function generate(options: GenerateOptions): Promise<void> {
   const schema = await fetchOpenAPISchema(options.specUrl, options)
@@ -57,15 +55,8 @@ export async function generate(options: GenerateOptions): Promise<void> {
         }
       }
     }
-
-    // 模板输出
-    const output = await eta.renderAsync('schema.ts.eta', {
-      trimKey,
-      fixKey,
-      components,
-      apiGroups
-    })
+    const output = generateOpenAPISchemas({ components, apiGroups })
     // 保存输出到文件
-    await saveTextToFile(resolve(options.outputDir || 'src/api', 'schema.ts'), output)
+    await saveTextToFile(resolve(options.outputDir || 'src/api', 'schema.ts'), prettier(output))
   }
 }

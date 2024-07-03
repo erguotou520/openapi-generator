@@ -1,5 +1,3 @@
-import { OpenAPIV3 } from "openapi-types"
-
 /**
  * 修复key中一些错误的字符，兼容特殊的API场景
  * @param key 对象的键

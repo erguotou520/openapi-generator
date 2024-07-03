@@ -1,4 +1,0 @@
-<% if (it.dataPath) { %>
-  <% it.dataPath.forEach(path => {
-    %>['<%= path %>']<% }) %>
-<% } %>

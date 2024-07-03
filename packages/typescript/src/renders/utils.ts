@@ -1,3 +1,5 @@
+import { OpenAPIV3 } from 'openapi-types'
+
 /**
  * 修复key中一些错误的字符，兼容特殊的API场景
  * @param key 对象的键
@@ -17,4 +19,34 @@ export function trimKey(str: string) {
     return str.replace(/ /g, '')
   }
   return str
+}
+
+export function generateSpace(count: number) {
+  return new Array(count).fill(' ').join('')
+}
+
+export function getReferenceName($ref: string) {
+  const parts = $ref.split('/')
+  const category = parts[parts.length - 2]
+  let last = parts[parts.length - 1]
+  if (last.match(/(%[A-Z0-9]{2})/g)) {
+    last = decodeURIComponent(last)
+  }
+  return `OpenAPIComponents['${category}']['${last}']`
+}
+
+export function getPreferredSchema<T>(schema: Record<string, T>, preferred?: string[]) {
+  const keys = Object.keys(schema)
+  if (!keys.length) {
+    return null
+  }
+  // 优先按照 preferred 顺序查找
+  if (preferred && preferred.length) {
+    for (const key of preferred) {
+      if (schema[key]) {
+        return schema[key]
+      }
+    }
+  }
+  return schema[keys[0]]
 }

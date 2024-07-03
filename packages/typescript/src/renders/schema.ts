@@ -1,5 +1,10 @@
 import type { OpenAPIV3 } from 'openapi-types'
 import { schemaAny } from './schema.any'
+import { generateSpace, getPreferredSchema } from './utils'
+import { componentsSchemas } from './components.schemas'
+import { componentsResponses } from './components.responses'
+import { componentsRequestBodies } from './components.requestBodies'
+import { schemaComment } from './schema.comment'
 
 export function generateOpenAPISchemas(it: {
   components: OpenAPIV3.ComponentsObject
@@ -11,44 +16,58 @@ export function generateOpenAPISchemas(it: {
     >
   >
 }) {
-  return `export type OpenAPISchemas = {
+  return `export type OpenAPIComponents = {
+  schemas: ${it.components.schemas ? componentsSchemas(it.components.schemas) : 'never'},
+  responses: ${it.components.responses ? componentsResponses(it.components.responses) : 'never'},
+  parameters: {},
+  requestBodies: ${it.components.requestBodies ? componentsRequestBodies(it.components.requestBodies) : 'never'},
+  headers: {}
+}
+  
+export type OpenAPIs = {
   ${Object.keys(it.apiGroups || {})
     .map(
       method => `
   ${method}: {${Object.keys(it.apiGroups[method] || {})
     .map(path => {
-      const { queryList, paramList, requestBody, responses } = it.apiGroups[method][path]
-      let body: null | string | OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject = null
+      const { queryList, paramList, requestBody, responses, description, summary } = it.apiGroups[method][path]
+      let body: null | OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject = null
       if (requestBody) {
         if ('$ref' in requestBody) {
-          body = requestBody.$ref
+          body = requestBody
         } else {
-          body =
-            requestBody.content['application/json']?.schema ||
-            requestBody.content['multipart/form-data']?.schema ||
-            null
+          // application/json form-data/multipart wwww-form-urlencoded
+          body = getPreferredSchema(requestBody.content)
         }
       }
-      const resp = responses['200'] || responses['201']
+      // 200 201
+      const resp = getPreferredSchema(responses, ['200', '201'])
       let responseContent: null | string | OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject = null
       if (resp) {
         if ('$ref' in resp) {
-          responseContent = resp.$ref
+          responseContent = resp
         } else {
-          responseContent = resp.content?.['application/json']?.schema || resp.content?.['*/*']?.schema || null
+          if (resp.content) {
+            // application/json */*
+            const _schema = getPreferredSchema(resp.content)
+            if (_schema?.schema) {
+              responseContent = _schema.schema
+            }
+          }
         }
       }
       return `
-    '${path}': {
+    ${(summary || description) ? `${schemaComment({ title: summary, description }, 4)}${generateSpace(4)}` : ''
+    }'${path}': {
       query: ${
         queryList.length > 0
           ? `{
         ${queryList
           .map(
             query =>
-              `'${query.name}'${!query.required ? '?' : ''}: ${query.schema ? schemaAny(query.schema) : 'unknown'},`
+              `'${query.name}'${!query.required ? '?' : ''}: ${query.schema ? schemaAny(query.schema, 8) : 'unknown'},`
           )
-          .join('')}
+          .join(`\n${generateSpace(8)}`)}
       }`
           : 'never'
       },
@@ -58,14 +77,14 @@ export function generateOpenAPISchemas(it: {
         ${paramList
           .map(
             param =>
-              `'${param.name}'${!param.required ? '?' : ''}: ${param.schema ? schemaAny(param.schema) : 'unknown'},`
+              `'${param.name}'${!param.required ? '?' : ''}: ${param.schema ? schemaAny(param.schema, 8) : 'unknown'},`
           )
-          .join('')}
+          .join(`\n${generateSpace(8)}`)}
       }`
           : 'never'
       },
-      body: ${body ? schemaAny(body) : 'never'},
-      response: ${responseContent ? schemaAny(responseContent) : 'unknown'}
+      body: ${body ? schemaAny(body, 6) : 'never'},
+      response: ${responseContent ? schemaAny(responseContent, 6) : 'unknown'}
     },`
     })
     .join('')}

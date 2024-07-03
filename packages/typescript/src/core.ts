@@ -41,7 +41,13 @@ export async function generate(options: GenerateOptions): Promise<void> {
 
     // paths里的api按照method分组
     const paths = schema.paths ?? {}
-    const apiGroups: Record<string, Record<string, OpenAPIV3.OperationObject & { queryList: OpenAPIV3.ParameterObject[]; paramList: OpenAPIV3.ParameterObject[] }>> = {}
+    const apiGroups: Record<
+      string,
+      Record<
+        string,
+        OpenAPIV3.OperationObject & { queryList: OpenAPIV3.ParameterObject[]; paramList: OpenAPIV3.ParameterObject[] }
+      >
+    > = {}
     for (const [path, pathItem] of Object.entries(paths)) {
       if (pathItem) {
         for (const [method, operation] of Object.entries(pathItem)) {

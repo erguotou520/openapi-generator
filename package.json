@@ -1,5 +1,9 @@
 {
   "workspaces": ["packages/*"],
+  "scripts": {
+    "serve": "hs -f apis -m index -p 7007",
+    "format": "biome format --write ./packages/*/src"
+  },
   "dependencies": {
     "swagger2openapi": "^7.0.8"
   },

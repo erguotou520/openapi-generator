@@ -1,4 +1,4 @@
-export function schemaPrimitive(it: { type: string, format?: string }) {
+export function schemaPrimitive(it: { type: string; format?: string }) {
   if (['number', 'integer'].includes(it.type)) {
     return 'number'
   }

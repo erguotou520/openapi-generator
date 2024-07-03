@@ -24,7 +24,7 @@ export async function fetchOpenAPISchema(url: string, options: GenerateOptions) 
     }
     // 保存到文件
     const schema = await response.json()
-    if (isVersion2) {
+    if (isVersion2 || ('swagger' in schema && schema.swagger === '2.0')) {
       const ret = await new Promise((resolve, reject) => {
         swaggerConvert.convertObj(schema, { patch: true, warnOnly: true }, (error, options) => {
           if (error) {

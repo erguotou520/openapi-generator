@@ -1,12 +1,24 @@
+import { OpenAPIV3 } from 'openapi-types'
 import { schemaAny } from './schema.any'
-import { fixKey } from './utils'
+import { getPreferredSchema, getReferenceName } from './utils'
 
-export function componentsRequestBodies(it: any) {
-  return Object.keys(it.requestBodies || {})
+export function componentsRequestBodies(it: Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.RequestBodyObject>) {
+  return `{
+  ${Object.keys(it || {})
     .map(key => {
-      const entity = it.requestBodies[key]
-      const schema = entity.content['application/json'].schema
-      return `export type ${fixKey(key)} = ${schemaAny(schema)} & BasicDto`
+      const schema = it[key]
+      if ('$ref' in schema) {
+        return `
+    '${key}' = ${getReferenceName(schema.$ref)}`
+      }
+      if (!schema.content) {
+        return `
+    '${key}' = unknown`
+      }
+      const resp = getPreferredSchema(schema.content)
+      return `
+    '${key}':  ${resp?.schema ? schemaAny(resp.schema, 4) : 'unknown'}`
     })
-    .join('\n\n')
+    .join(',\n')}
+  }`
 }

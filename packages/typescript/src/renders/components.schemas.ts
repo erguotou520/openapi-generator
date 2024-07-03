@@ -1,20 +1,14 @@
-import { schemaObject } from './schema.object'
-import { schemaRef } from './schema.ref'
-import { fixKey } from './utils'
+import { OpenAPIV3 } from 'openapi-types'
+import { schemaAny } from './schema.any'
 
-export function componentsSchemas(it: any) {
-  return Object.keys(it.schemas || {})
+export function componentsSchemas(it: Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>) {
+  return `{
+  ${Object.keys(it || {})
     .map(key => {
-      const schema = it.schemas[key]
-      let schemaDefinition
-
-      if ('$ref' in schema) {
-        schemaDefinition = schemaRef({ ref: schema.$ref })
-      } else {
-        schemaDefinition = schemaObject({ obj: schema })
-      }
-
-      return `export type ${fixKey(key)} = ${schemaDefinition} & BasicDto`
+      const schema = it[key]
+      return `
+    '${key}': ${schemaAny(schema, 4)}`
     })
-    .join('\n\n')
+    .join(',\n')}
+  }`
 }

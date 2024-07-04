@@ -8,5 +8,5 @@ export function schemaPrimitive(it: { type: string; format?: string }) {
   if (it.type === 'string') {
     return it.format === 'binary' ? 'File' : 'string'
   }
-  return 'any'
+  return 'unknown'
 }

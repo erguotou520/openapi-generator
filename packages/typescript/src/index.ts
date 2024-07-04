@@ -1,13 +1,14 @@
 import { resolve } from 'node:path'
 import { generate } from './core'
+export { generate } from './core'
 import type { GenerateOptions } from './types'
 export type { GenerateOptions } from './types'
 
-export function defineConfig(config: GenerateOptions) {
+export function defineConfig(config: GenerateOptions): GenerateOptions {
   return config
 }
 
-export async function run(_args: string[]) {
+export async function run(_args: string[]): Promise<void> {
   let config: GenerateOptions | undefined
   try {
     const mod = await import(resolve(process.cwd(), 'o2t.config.js'))

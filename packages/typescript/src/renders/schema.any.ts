@@ -31,5 +31,5 @@ export function schemaAny(
       return schemaObject(it, spacePrefix)
     }
   }
-  return 'any'
+  return 'unknown'
 }

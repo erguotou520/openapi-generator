@@ -1,8 +1,10 @@
 {
-  "name": "@doremijs/openapi-typescript-generator",
+  "name": "@doremijs/o2t",
+  "version": "0.0.1",
+  "description": "OpenAPI to TypeScript code generator",
   "scripts": {
     "dev": "bun bin/o2t.ts --watch src/index.ts",
-    "build": "bun build "
+    "build": "bun run scripts/build.ts"
   },
   "publishConfig": {
     "access": "public",

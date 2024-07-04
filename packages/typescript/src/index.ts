@@ -17,7 +17,7 @@ export async function run(_args: string[]) {
     process.exit(1)
   }
   if (!config?.specUrl) {
-    console.error('Please provide the OpenAPI spec URL in ota.config.js.')
+    console.error('Please provide the OpenAPI spec URL in o2t.config.js.')
     process.exit(1)
   }
   await generate(config)

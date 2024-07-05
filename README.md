@@ -1,3 +1,3 @@
 # OpenAPI Generator
 
-- TypeScript generator
+- [TypeScript generator documentation](./packages/typescript/README.md)

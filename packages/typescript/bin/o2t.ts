@@ -1,3 +1,3 @@
 #!/usr/bin/env node
-const { run } = require('../src')
+import { run } from '../src'
 run(process.argv.slice(2))

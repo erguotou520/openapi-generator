@@ -1,3 +1,3 @@
 #!/usr/bin/env node
-const run = require('../dist').run;
+import { run } from '../dist/index.mjs'
 run(process.argv.slice(2));

@@ -1,3 +1,4 @@
+import { rename } from 'node:fs/promises'
 import dts from 'bun-plugin-dts'
 // import isolatedDecl from 'bun-plugin-isolated-decl'
 
@@ -18,3 +19,6 @@ await Bun.build({
   plugins: [dts()],
   // plugins: [isolatedDecl()]
 })
+
+await rename('dist/index.js', 'dist/index.mjs')
+await rename('dist/client/index.js', 'dist/client/index.mjs')

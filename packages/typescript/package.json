@@ -1,9 +1,31 @@
 {
   "name": "@doremijs/o2t",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "OpenAPI to TypeScript code generator",
+  "keywords": ["openapi", "swagger", "typescript", "code generator"],
+  "type": "module",
+  "license": "LGPL-3.0-or-later",
+  "author": "erguotou <erguotou525@gmail.com>",
+  "main": "dist/index.js",
+  "files": [
+    "bin/o2t.mjs",
+    "dist"
+  ],
+  "bin": {
+    "o2t": "./bin/o2t.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "import": "./dist/client/index.mjs"
+    }
+  },
   "scripts": {
-    "dev": "bun bin/o2t.ts --watch src/index.ts",
+    "dev": "bun bin/o2t.ts src/index.ts init",
     "build": "bun run scripts/build.ts"
   },
   "publishConfig": {

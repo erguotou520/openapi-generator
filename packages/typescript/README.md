@@ -13,7 +13,7 @@ npm i @doremijs/o2t
 # bun i @doremijs/o2t
 ```
 
-2. Create a configuration file `o2t.config.js` in the root of your project:
+2. Run command `npx o2t init` to create a `o2t.config.mjs` configuration file, or you can create the configuration file `o2t.config.mjs` in the root of your project by yourself. The configuration file should look like this:
 
 ```javascript
 import { defineConfig } from '@doremijs/o2t'
@@ -36,7 +36,9 @@ npx o2t
 import { createFetchClient } from '@doremijs/o2t/client'
 import type { OpenAPIs } from './schema'
 
-const client = createFetchClient<OpenAPIs>({
+export const client = createFetchClient<OpenAPIs>({
+  // ... other options
+  // requestInterceptor and responseInterceptor are optional
   requestInterceptor(request) {
     return {
       ...request,
@@ -46,7 +48,7 @@ const client = createFetchClient<OpenAPIs>({
       }
     }
   },
-  responseInterceptor(response) {
+  responseInterceptor(request, response) {
     // Handle response here
     return response
   }

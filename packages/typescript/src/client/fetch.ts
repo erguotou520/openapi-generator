@@ -1,3 +1,5 @@
+export type PromiseOr<T> = T | Promise<T>
+
 type IsOptional<T> = Extract<T, undefined | null | any> extends never ? false : true
 
 type RequiredKeys<T> = {
@@ -40,11 +42,11 @@ export type CreateFetchClientConfig = {
   /**
    * 请求前拦截器
    */
-  requestInterceptor?: (request: Request) => Promise<Request | null | undefined>
+  requestInterceptor?: (request: Request) => PromiseOr<Request | null | undefined>
   /**
    * 响应拦截器
    */
-  responseInterceptor?: (request: Request, response: Response) => Promise<Response>
+  responseInterceptor?: (request: Request, response: Response) => PromiseOr<Response>
   /**
    * 如何从错误的响应中获取错误信息
    */

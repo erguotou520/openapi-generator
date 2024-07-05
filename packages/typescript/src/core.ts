@@ -6,6 +6,8 @@ import { prettier } from './prettier'
 import { generateOpenAPISchemas } from './renders/schema'
 import type { GenerateOptions } from './types'
 
+export const configFileName = 'o2t.config.mjs'
+
 export async function generate(options: GenerateOptions): Promise<void> {
   const schema = await fetchOpenAPISchema(options.specUrl, options)
   if (schema) {

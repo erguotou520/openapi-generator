@@ -1,9 +1,9 @@
 import type { OpenAPIV3 } from 'openapi-types'
 // import ora from 'ora'
 import swaggerConvert from 'swagger2openapi'
-import type { GenerateOptions } from './types'
+import type { UserDefinedGenerateOptions } from './types'
 
-export async function fetchOpenAPISchema(url: string, options: GenerateOptions) {
+export async function fetchOpenAPISchema(url: string, options: UserDefinedGenerateOptions) {
   // const spinner = ora('Fetching OpenAPI schema').start()
   const { customHeaders, basicAuth, isVersion2 } = options
   try {

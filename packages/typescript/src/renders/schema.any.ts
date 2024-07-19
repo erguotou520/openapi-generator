@@ -1,3 +1,4 @@
+import { getConfig } from '@/config'
 import type { OpenAPIV3 } from 'openapi-types'
 import { schemaArray } from './schema.array'
 import { schemaObject } from './schema.object'
@@ -8,6 +9,7 @@ export function schemaAny(
   it: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject | OpenAPIV3.BaseSchemaObject,
   spacePrefix = 0
 ): string {
+  const { preferUnknownType } = getConfig()
   if (('oneOf' in it && it.oneOf) || ('anyOf' in it && it.anyOf)) {
     const list = (it.oneOf || it.anyOf) as (OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject)[]
     return `(${list.map(item => schemaAny(item, spacePrefix)).join(' | ')})`
@@ -31,5 +33,5 @@ export function schemaAny(
       return schemaObject(it, spacePrefix)
     }
   }
-  return 'unknown'
+  return preferUnknownType
 }

@@ -30,7 +30,7 @@
     }
   },
   "scripts": {
-    "dev": "bun bin/o2t.ts src/index.ts init",
+    "dev": "bun bin/o2t.ts src/index.ts",
     "build": "bun run scripts/build.ts",
     "prepublishOnly": "npm run build"
   },

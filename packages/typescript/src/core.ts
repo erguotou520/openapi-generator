@@ -12,7 +12,7 @@ export async function generate(options: GenerateOptions): Promise<void> {
   const schema = await fetchOpenAPISchema(options.specUrl, options)
   if (schema) {
     // 保存 schema 到文件
-    saveTextToFile(options.tempFilePath || 'node_modules/.o2t/openapi.json', JSON.stringify(schema, null, 2))
+    saveTextToFile(options.tempFilePath, JSON.stringify(schema, null, 2))
     const components = schema.components ?? {}
 
     /**
@@ -65,6 +65,6 @@ export async function generate(options: GenerateOptions): Promise<void> {
     }
     const output = generateOpenAPISchemas({ components, apiGroups })
     // 保存输出到文件
-    await saveTextToFile(resolve(options.outputDir || 'src/api', 'schema.ts'), prettier(output))
+    await saveTextToFile(resolve(options.outputDir, 'schema.ts'), prettier(output))
   }
 }

@@ -1,10 +1,11 @@
+import { getConfig } from '@/config'
 import type { OpenAPIV3 } from 'openapi-types'
-import { schemaAny } from './schema.any'
-import { generateSpace, getPreferredSchema } from './utils'
-import { componentsSchemas } from './components.schemas'
-import { componentsResponses } from './components.responses'
 import { componentsRequestBodies } from './components.requestBodies'
+import { componentsResponses } from './components.responses'
+import { componentsSchemas } from './components.schemas'
+import { schemaAny } from './schema.any'
 import { schemaComment } from './schema.comment'
+import { generateSpace, getPreferredSchema } from './utils'
 
 export function generateOpenAPISchemas(it: {
   components: OpenAPIV3.ComponentsObject
@@ -19,9 +20,9 @@ export function generateOpenAPISchemas(it: {
   return `export type OpenAPIComponents = {
   schemas: ${it.components.schemas ? componentsSchemas(it.components.schemas) : 'never'},
   responses: ${it.components.responses ? componentsResponses(it.components.responses) : 'never'},
-  parameters: {},
-  requestBodies: ${it.components.requestBodies ? componentsRequestBodies(it.components.requestBodies) : 'never'},
-  headers: {}
+  // parameters: {},
+  // headers: {},
+  requestBodies: ${it.components.requestBodies ? componentsRequestBodies(it.components.requestBodies) : 'never'}
 }
   
 export type OpenAPIs = {
@@ -30,6 +31,7 @@ export type OpenAPIs = {
       method => `
   ${method}: {${Object.keys(it.apiGroups[method] || {})
     .map(path => {
+      const { preferUnknownType } = getConfig()
       const { queryList, paramList, requestBody, responses, description, summary } = it.apiGroups[method][path]
       let body: null | OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject = null
       if (requestBody) {
@@ -57,15 +59,14 @@ export type OpenAPIs = {
         }
       }
       return `
-    ${(summary || description) ? `${schemaComment({ title: summary, description }, 4)}${generateSpace(4)}` : ''
-    }'${path}': {
+    ${summary || description ? `${schemaComment({ title: summary, description }, 4)}${generateSpace(4)}` : ''}'${path}': {
       query: ${
         queryList.length > 0
           ? `{
         ${queryList
           .map(
             query =>
-              `'${query.name}'${!query.required ? '?' : ''}: ${query.schema ? schemaAny(query.schema, 8) : 'unknown'},`
+              `'${query.name}'${!query.required ? '?' : ''}: ${query.schema ? schemaAny(query.schema, 8) : preferUnknownType},`
           )
           .join(`\n${generateSpace(8)}`)}
       }`
@@ -77,14 +78,14 @@ export type OpenAPIs = {
         ${paramList
           .map(
             param =>
-              `'${param.name}'${!param.required ? '?' : ''}: ${param.schema ? schemaAny(param.schema, 8) : 'unknown'},`
+              `'${param.name}'${!param.required ? '?' : ''}: ${param.schema ? schemaAny(param.schema, 8) : preferUnknownType},`
           )
           .join(`\n${generateSpace(8)}`)}
       }`
           : 'never'
       },
       body: ${body ? schemaAny(body, 6) : 'never'},
-      response: ${responseContent ? schemaAny(responseContent, 6) : 'unknown'}
+      response: ${responseContent ? schemaAny(responseContent, 6) : preferUnknownType}
     },`
     })
     .join('')}

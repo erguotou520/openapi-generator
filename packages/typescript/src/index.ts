@@ -1,11 +1,12 @@
 import { resolve } from 'node:path'
 import { configFileName, generate } from './core'
 export { generate } from './core'
+import { setConfig } from './config'
 import { initConfigFile } from './init'
-import type { GenerateOptions } from './types'
-export type { GenerateOptions } from './types'
+import type { UserDefinedGenerateOptions } from './types'
+export type { UserDefinedGenerateOptions as GenerateOptions } from './types'
 
-export function defineConfig(config: GenerateOptions): GenerateOptions {
+export function defineConfig(config: UserDefinedGenerateOptions): UserDefinedGenerateOptions {
   return config
 }
 
@@ -13,7 +14,7 @@ export async function run(_args: string[]): Promise<void> {
   if (_args[0] === 'init') {
     await initConfigFile()
   } else {
-    let config: GenerateOptions | undefined
+    let config: UserDefinedGenerateOptions | undefined
     try {
       const mod = await import(resolve(process.cwd(), configFileName))
       config = mod.default || mod
@@ -25,6 +26,7 @@ export async function run(_args: string[]): Promise<void> {
       console.error(`Please provide the OpenAPI spec URL in ${configFileName}.`)
       process.exit(1)
     }
-    await generate(config)
+    const configWithDefaults = setConfig(config)
+    await generate(configWithDefaults)
   }
 }

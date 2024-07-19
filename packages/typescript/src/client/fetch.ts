@@ -1,10 +1,10 @@
 export type PromiseOr<T> = T | Promise<T>
 
 type HasRequiredFields<T> = keyof T extends never // Check if the type has no keys (empty object case)
-? false
-: { [K in keyof T]-?: {} extends Pick<T, K> ? false : true }[keyof T] extends false
-? false
-: true;
+  ? false
+  : { [K in keyof T]-?: {} extends Pick<T, K> ? false : true }[keyof T] extends false
+    ? false
+    : true
 
 type ApiOptions = { query?: any; params?: any; body?: any }
 
@@ -21,7 +21,9 @@ type RequiredOptions<T extends ApiOptions> = {
 }
 
 type OptionalOptions<T extends ApiOptions> = {
-  [K in keyof OptionsType<T> as HasRequiredFields<NonNullable<OptionsType<T>[K]>> extends false ? K : never]?: OptionsType<T>[K]
+  [K in keyof OptionsType<T> as HasRequiredFields<NonNullable<OptionsType<T>[K]>> extends false
+    ? K
+    : never]?: OptionsType<T>[K]
 }
 
 type MergedOptions<T extends ApiOptions> = RequiredOptions<T> & Partial<OptionalOptions<T>>
@@ -30,28 +32,34 @@ type HasAnyRequiredOption<T extends ApiOptions> = [keyof RequiredOptions<T>] ext
 
 export type CreateFetchClientConfig = {
   /**
-   * fetch 函数提供商，默认使用 globalThis.fetch
+   * fetch provider, default to globalThis.fetch
    */
-  fetchImpl?: typeof globalThis.fetch,
+  fetchImpl?: typeof globalThis.fetch
   /**
-   * 自定义query 序列化
+   * custom query serializer, default to URLSearchParams.toString()
    */
   querySerializer?: (query: any) => string
   /**
-   * 请求前拦截器
+   * request interceptor
    */
   requestInterceptor?: (request: Request) => PromiseOr<Request | null | undefined>
   /**
-   * 响应拦截器
+   * response interceptor
    */
   responseInterceptor?: (request: Request, response: Response) => PromiseOr<Response>
   /**
-   * 如何从错误的响应中获取错误信息
+   * how to get error message from response, default to response.statusText
    */
   errorMessageExtractor?: (response: Response) => string
+  /**
+   * custom error message handler, default to console.error
+   */
+  errorHandler?: (message: string, response: Response | null, error: Error | null) => void
 }
 
-export type ResponseType<T> = { error: true, message: string, response?: Response, data: null } | { error: false, data: T }
+export type ResponseType<T> =
+  | { error: true; message: string; response?: Response; data: null }
+  | { error: false; data: T }
 
 export function createFetchClient<
   OpenApis extends {
@@ -87,7 +95,9 @@ export function createFetchClient<
 
       // Handle query parameters
       if ('query' in options && options.query) {
-        const queryString = config?.querySerializer?.(options.query) || new URLSearchParams(options.query as Record<string, string>).toString()
+        const queryString =
+          config?.querySerializer?.(options.query) ||
+          new URLSearchParams(options.query as Record<string, string>).toString()
         url += `?${queryString}`
       }
 
@@ -111,7 +121,9 @@ export function createFetchClient<
           response = await config.responseInterceptor(request, response)
         }
         if (!response.ok) {
-          return { error: true, message: config.errorMessageExtractor?.(response) || response.statusText, response, data: null }
+          const message = config.errorMessageExtractor?.(response) || response.statusText
+          config.errorHandler?.(message, response, null)
+          return { error: true, message, response, data: null }
         }
         const contentType = response.headers.get('content-type')
         if (contentType?.includes('application/json')) {
@@ -122,7 +134,9 @@ export function createFetchClient<
         }
         return { error: false, data: response }
       } catch (error) {
-        return { error: true, message: (error as Error).message, data: null }
+        const message = (error as Error).message
+        config.errorHandler?.(message, null, error as Error)
+        return { error: true, message, data: null }
       }
     }
   }

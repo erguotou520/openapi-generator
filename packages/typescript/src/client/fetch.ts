@@ -73,7 +73,7 @@ export function createFetchClient<
       ...args: HasAnyRequiredOption<OpenApis[M][P]> extends true
         ? [options: MergedOptions<OpenApis[M][P]>]
         : [options?: MergedOptions<OpenApis[M][P]>]
-    ): Promise<OpenApis[M][P]['response']> => {
+    ): Promise<ResponseType<OpenApis[M][P]['response']>> => {
       let url = path as string
       const options = args[0] || {}
 

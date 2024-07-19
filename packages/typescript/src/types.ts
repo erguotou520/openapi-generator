@@ -3,15 +3,33 @@ type MakeRequired<T, K extends keyof T> = {
 } & Omit<T, K>
 
 export type UserDefinedGenerateOptions = {
+  /**
+   * The URL of the OpenAPI specification file.
+   */
   specUrl: string
+  /**
+   * Whether the OpenAPI specification is swagger version 2, you may not need to set this property as the generator will automatically detect the version of the specification.
+   */
   isVersion2?: boolean
+  /**
+   * The directory where the generated code will be saved. (default: "src/api").
+   */
   outputDir?: string
+  /**
+   * The path of the temporary file used to store the downloaded OpenAPI specification file. (default: "node_modules/.o2t/openapi.json").
+   */
   tempFilePath?: string
   /**
-   * 对于不能解析的类型，更倾向于使用any还是unknown，默认为any
+   * When the type is unknown, whether to use "any" or "unknown" type. (default: "any").
    */
   preferUnknownType?: 'any' | 'unknown'
+  /**
+   * Custom headers to be added to fetch the OpenAPI specification file. For example, you may need to add a token or a cookie to access the file.
+   */
   customHeaders?: Record<string, string>
+  /**
+   * Basic authentication information to be added to fetch the OpenAPI specification file. For example, you may need to access a private API that requires authentication.
+   */
   basicAuth?: {
     username: string
     password: string

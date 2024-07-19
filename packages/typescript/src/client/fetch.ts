@@ -1,12 +1,10 @@
 export type PromiseOr<T> = T | Promise<T>
 
-type IsOptional<T> = Extract<T, undefined | null | any> extends never ? false : true
-
-type RequiredKeys<T> = {
-  [K in keyof T]-?: IsOptional<T[K]> extends true ? never : K
-}[keyof T]
-
-type HasRequiredFields<T> = RequiredKeys<T> extends never ? false : true
+type HasRequiredFields<T> = keyof T extends never // Check if the type has no keys (empty object case)
+? false
+: { [K in keyof T]-?: {} extends Pick<T, K> ? false : true }[keyof T] extends false
+? false
+: true;
 
 type ApiOptions = { query?: any; params?: any; body?: any }
 
@@ -23,12 +21,12 @@ type RequiredOptions<T extends ApiOptions> = {
 }
 
 type OptionalOptions<T extends ApiOptions> = {
-  [K in keyof OptionsType<T> as
-    | (HasRequiredFields<NonNullable<OptionsType<T>[K]>> extends false ? K : never)
-    | (OptionsType<T>[K] extends any ? K : never)]?: OptionsType<T>[K]
+  [K in keyof OptionsType<T> as HasRequiredFields<NonNullable<OptionsType<T>[K]>> extends false ? K : never]?: OptionsType<T>[K]
 }
 
 type MergedOptions<T extends ApiOptions> = RequiredOptions<T> & Partial<OptionalOptions<T>>
+
+type HasAnyRequiredOption<T extends ApiOptions> = [keyof RequiredOptions<T>] extends [never] ? false : true
 
 export type CreateFetchClientConfig = {
   /**
@@ -66,14 +64,16 @@ export function createFetchClient<
       }
     }
   }
->(config: CreateFetchClientConfig) {
+>(config: CreateFetchClientConfig = {}) {
   const fetchImpl = config.fetchImpl || globalThis.fetch
 
   function createMethod<M extends keyof OpenApis>(method: M) {
     return async <P extends keyof OpenApis[M]>(
       path: P,
-      ...args: keyof MergedOptions<OpenApis[M][P]> extends never ? [] : [options: MergedOptions<OpenApis[M][P]>]
-    ): Promise<ResponseType<OpenApis[M][P]['response']>> => {
+      ...args: HasAnyRequiredOption<OpenApis[M][P]> extends true
+        ? [options: MergedOptions<OpenApis[M][P]>]
+        : [options?: MergedOptions<OpenApis[M][P]>]
+    ): Promise<OpenApis[M][P]['response']> => {
       let url = path as string
       const options = args[0] || {}
 

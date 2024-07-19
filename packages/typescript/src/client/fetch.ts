@@ -51,7 +51,7 @@ export type CreateFetchClientConfig = {
   errorMessageExtractor?: (response: Response) => string
 }
 
-export type ResponseType<T> = { error: true, message: string, response?: Response } | { error: false, data: T }
+export type ResponseType<T> = { error: true, message: string, response?: Response, data: null } | { error: false, data: T }
 
 export function createFetchClient<
   OpenApis extends {
@@ -111,7 +111,7 @@ export function createFetchClient<
           response = await config.responseInterceptor(request, response)
         }
         if (!response.ok) {
-          return { error: true, message: config.errorMessageExtractor?.(response) || response.statusText, response }
+          return { error: true, message: config.errorMessageExtractor?.(response) || response.statusText, response, data: null }
         }
         const contentType = response.headers.get('content-type')
         if (contentType?.includes('application/json')) {
@@ -122,7 +122,7 @@ export function createFetchClient<
         }
         return { error: false, data: response }
       } catch (error) {
-        return { error: true, message: (error as Error).message }
+        return { error: true, message: (error as Error).message, data: null }
       }
     }
   }

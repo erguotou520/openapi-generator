@@ -1,6 +1,6 @@
 {
   "name": "@doremijs/o2t",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "OpenAPI to TypeScript code generator",
   "keywords": [
     "openapi",

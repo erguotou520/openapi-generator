@@ -40,17 +40,18 @@ export const client = createFetchClient<OpenAPIs>({
   // ... other options
   // requestInterceptor and responseInterceptor are optional
   requestInterceptor(request) {
-    return {
-      ...request,
-      headers: {
-        ...request.headers ?? {},
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-      }
+    const token = localStorage.getItem('access_token')
+    if (!request.url.startsWith('/api/auth') && token) {
+      request.init.headers.Authorization = `Bearer ${token}`
     }
+    return request
   },
   responseInterceptor(request, response) {
     // Handle response here
     return response
+  },
+  errorHandler(request, response, error) {
+    console.error(request, response, error)
   }
 })
 ```
@@ -66,7 +67,7 @@ const result = await client.get('/path/to/api', {
 if (!result.error) {
   console.log(result.data)
 } else {
-  console.log(result.message)
+  // Handle error here
 }
 ```
 

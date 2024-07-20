@@ -30,6 +30,18 @@ type MergedOptions<T extends ApiOptions> = RequiredOptions<T> & Partial<Optional
 
 type HasAnyRequiredOption<T extends ApiOptions> = [keyof RequiredOptions<T>] extends [never] ? false : true
 
+type ExternalOptions = { signal?: AbortSignal; timeoutMs?: number }
+
+type RequestInterceptorParams = { url: string; init: CustomFetchInit }
+
+export type CustomFetchInit = Omit<RequestInit, 'headers'> & {
+  headers: Record<string, string>
+}
+
+export type ResponseType<T> =
+  | { error: true; response?: Response; data: null }
+  | { error: false; data: T }
+
 export type CreateFetchClientConfig = {
   /**
    * fetch provider, default to globalThis.fetch
@@ -40,26 +52,22 @@ export type CreateFetchClientConfig = {
    */
   querySerializer?: (query: any) => string
   /**
+   * request timeout in milliseconds, default to 0 (no timeout)
+   */
+  requestTimeoutMs?: number
+  /**
    * request interceptor
    */
-  requestInterceptor?: (request: Request) => PromiseOr<Request | null | undefined>
+  requestInterceptor?: (request: RequestInterceptorParams) => PromiseOr<RequestInterceptorParams | null | undefined>
   /**
    * response interceptor
    */
-  responseInterceptor?: (request: Request, response: Response) => PromiseOr<Response>
+  responseInterceptor?: (request: RequestInterceptorParams, response: Response) => PromiseOr<Response | null | undefined>
   /**
-   * how to get error message from response, default to response.statusText
+   * custom error handler, default to console.error
    */
-  errorMessageExtractor?: (response: Response) => string
-  /**
-   * custom error message handler, default to console.error
-   */
-  errorHandler?: (message: string, response: Response | null, error: Error | null) => void
+  errorHandler?: (request: RequestInterceptorParams, response: Response | null, error: Error | null) => void
 }
-
-export type ResponseType<T> =
-  | { error: true; message: string; response?: Response; data: null }
-  | { error: false; data: T }
 
 export function createFetchClient<
   OpenApis extends {
@@ -79,8 +87,8 @@ export function createFetchClient<
     return async <P extends keyof OpenApis[M]>(
       path: P,
       ...args: HasAnyRequiredOption<OpenApis[M][P]> extends true
-        ? [options: MergedOptions<OpenApis[M][P]>]
-        : [options?: MergedOptions<OpenApis[M][P]>]
+        ? [options: MergedOptions<OpenApis[M][P]> & ExternalOptions]
+        : [options?: MergedOptions<OpenApis[M][P]> & ExternalOptions]
     ): Promise<ResponseType<OpenApis[M][P]['response']>> => {
       let url = path as string
       const options = args[0] || {}
@@ -101,29 +109,54 @@ export function createFetchClient<
         url += `?${queryString}`
       }
 
-      const request = new Request(url, {
-        method: method as string,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: 'body' in options && options.body ? JSON.stringify(options.body) : undefined
-      })
+      // body
+      let contentType: string | undefined
+      let bodyData: string | FormData | undefined
+      if ('body' in options) {
+        if (!(options.body instanceof FormData)) {
+          bodyData = JSON.stringify(options.body)
+          contentType = 'application/json'
+        } else {
+          bodyData = options.body
+        }
+      }
 
+      let fetchInit: CustomFetchInit = {
+        method: method as string,
+        headers: contentType ? { 'Content-Type': contentType } : {},
+        body: bodyData,
+        ...(typeof window !== 'undefined' ? ({ credentials: 'include', mode: 'cors' } as Partial<CustomFetchInit>) : {})
+      }
+
+      // timeout
+      let timeout: number | undefined
+      const timeoutMs = (options as ExternalOptions).timeoutMs ?? config.requestTimeoutMs
+      if (!(options as ExternalOptions).signal && timeoutMs && timeoutMs > 0) {
+        const controller = new AbortController()
+        // @ts-ignore
+        timeout = setTimeout(() => controller.abort(), timeoutMs)
+        fetchInit.signal = controller.signal
+      }
+      const requestParams: RequestInterceptorParams = { url, init: fetchInit }
       if (config.requestInterceptor) {
-        const changedRequest = await config.requestInterceptor(request)
+        const changedRequest = await config.requestInterceptor(requestParams)
         if (changedRequest) {
-          Object.assign(request, changedRequest)
+          // merge request
+          url = changedRequest.url
+          fetchInit = changedRequest.init
         }
       }
       try {
-        let response = await fetchImpl(request)
+        let response = await fetchImpl(url, fetchInit)
         if (config.responseInterceptor) {
-          response = await config.responseInterceptor(request, response)
+          const changedResponse = await config.responseInterceptor(requestParams, response)
+          if (changedResponse) {
+            response = changedResponse
+          }
         }
         if (!response.ok) {
-          const message = config.errorMessageExtractor?.(response) || response.statusText
-          config.errorHandler?.(message, response, null)
-          return { error: true, message, response, data: null }
+          config.errorHandler?.(requestParams, response, null)
+          return { error: true, response, data: null }
         }
         const contentType = response.headers.get('content-type')
         if (contentType?.includes('application/json')) {
@@ -134,9 +167,12 @@ export function createFetchClient<
         }
         return { error: false, data: response }
       } catch (error) {
-        const message = (error as Error).message
-        config.errorHandler?.(message, null, error as Error)
-        return { error: true, message, data: null }
+        (config.errorHandler || console.error)(requestParams, null, error as Error)
+        return { error: true, data: null }
+      } finally {
+        if (timeout) {
+          clearTimeout(timeout)
+        }
       }
     }
   }

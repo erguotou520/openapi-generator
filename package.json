@@ -1,6 +1,6 @@
 {
   "name": "@doremijs/o2t",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "OpenAPI to TypeScript code generator",
   "keywords": [
     "openapi",
@@ -30,7 +30,7 @@
     }
   },
   "scripts": {
-    "dev": "bun bin/o2t.ts src/index.ts",
+    "dev": "bun bin/o2t.ts",
     "build": "bun run scripts/build.ts",
     "prepublishOnly": "npm run build",
     "serve": "hs -f apis -m index -p 7007",

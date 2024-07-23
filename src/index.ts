@@ -27,11 +27,21 @@ export async function run(_args: string[]): Promise<void> {
       process.exit(1)
     }
     const configWithDefaults = setConfig(config)
+    if (!_args[1]) {
+      console.warn('No generator specified, default to "typescript".')
+    }
     const generator = (_args[1] || 'typescript') as SupportedGenerators
     if (!SUPPORTED_GENERATORS.includes(generator)) {
       console.error(`Unsupported generator: ${generator}. Supported generators: ${SUPPORTED_GENERATORS.join(', ')}.`)
       process.exit(1)
     }
     await generate(configWithDefaults, generator)
+  } else {
+    console.log(`Usage: o2t <command> [options]
+
+Commands:
+  init                  Initialize a new ${configFileName} file
+  generate [generator]  Generate code based on an OpenAPI spec
+`)
   }
 }

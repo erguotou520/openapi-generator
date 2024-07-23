@@ -9,10 +9,10 @@ Currently, we provide a TypeScript schema generator and a fetch client.
 1. Install the package:
 
 ```shell
-npm i -g @doremijs/o2t
-# pnpm i -g @doremijs/o2t
-# yarn add -g @doremijs/o2t
-# bun i -g @doremijs/o2t
+npm i @doremijs/o2t
+# pnpm i @doremijs/o2t
+# yarn add @doremijs/o2t
+# bun i @doremijs/o2t
 ```
 
 2. Run command `npx o2t init` to create a `o2t.config.mjs` configuration file, or you can create the configuration file `o2t.config.mjs` in the root of your project by yourself. The configuration file should look like this:
@@ -117,7 +117,7 @@ export default defineConfig({
 To run the generator in development mode:
 
 ```shell
-bun --cwd packages/typescript dev
+bun dev generate typescript
 ```
 
 If you need to test more OpenAPI specifications, you can download them to the `apis` folder in the root of the project, and serve the `apis` folder with a web server. For example:

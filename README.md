@@ -136,3 +136,7 @@ hs -f apis -m index
 ```
 
 Open the url printed by the `hs` command in your browser, and you will see the list of OpenAPI specifications. Copy the URL of the specification you want to test, and change the `specUrl` property in the `o2t.config.mjs` file.
+
+## Roadmap
+
+[ ] Flutter generator and client

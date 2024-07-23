@@ -1,4 +1,5 @@
 import { getConfig } from '@/config'
+import type { GenerateSchemaOptions } from '@/types'
 import type { OpenAPIV3 } from 'openapi-types'
 import { componentsRequestBodies } from './components.requestBodies'
 import { componentsResponses } from './components.responses'
@@ -7,16 +8,7 @@ import { schemaAny } from './schema.any'
 import { schemaComment } from './schema.comment'
 import { generateSpace, getPreferredSchema } from './utils'
 
-export function generateOpenAPISchemas(it: {
-  components: OpenAPIV3.ComponentsObject
-  apiGroups: Record<
-    string,
-    Record<
-      string,
-      OpenAPIV3.OperationObject & { queryList: OpenAPIV3.ParameterObject[]; paramList: OpenAPIV3.ParameterObject[] }
-    >
-  >
-}) {
+export function generateOpenAPISchemas(it: GenerateSchemaOptions) {
   return `export type OpenAPIComponents = {
   schemas: ${it.components.schemas ? componentsSchemas(it.components.schemas) : 'never'},
   responses: ${it.components.responses ? componentsResponses(it.components.responses) : 'never'},

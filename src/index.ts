@@ -3,7 +3,7 @@ import { configFileName, generate } from './core'
 export { generate } from './core'
 import { setConfig } from './config'
 import { initConfigFile } from './init'
-import type { UserDefinedGenerateOptions } from './types'
+import { SUPPORTED_GENERATORS, type SupportedGenerators, type UserDefinedGenerateOptions } from './types'
 export type { UserDefinedGenerateOptions as GenerateOptions } from './types'
 
 export function defineConfig(config: UserDefinedGenerateOptions): UserDefinedGenerateOptions {
@@ -13,7 +13,7 @@ export function defineConfig(config: UserDefinedGenerateOptions): UserDefinedGen
 export async function run(_args: string[]): Promise<void> {
   if (_args[0] === 'init') {
     await initConfigFile()
-  } else {
+  } else if (_args[0] === 'generate') {
     let config: UserDefinedGenerateOptions | undefined
     try {
       const mod = await import(resolve(process.cwd(), configFileName))
@@ -27,6 +27,11 @@ export async function run(_args: string[]): Promise<void> {
       process.exit(1)
     }
     const configWithDefaults = setConfig(config)
-    await generate(configWithDefaults)
+    const generator = (_args[1] || 'typescript') as SupportedGenerators
+    if (!SUPPORTED_GENERATORS.includes(generator)) {
+      console.error(`Unsupported generator: ${generator}. Supported generators: ${SUPPORTED_GENERATORS.join(', ')}.`)
+      process.exit(1)
+    }
+    await generate(configWithDefaults, generator)
   }
 }

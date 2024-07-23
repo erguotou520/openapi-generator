@@ -1,3 +1,5 @@
+import type { OpenAPIV3 } from 'openapi-types'
+
 type MakeRequired<T, K extends keyof T> = {
   [P in K]-?: T[P]
 } & Omit<T, K>
@@ -40,3 +42,17 @@ export type GenerateOptions = MakeRequired<
   UserDefinedGenerateOptions,
   'outputDir' | 'tempFilePath' | 'preferUnknownType'
 >
+
+export type GenerateSchemaOptions = {
+  components: OpenAPIV3.ComponentsObject
+  apiGroups: Record<
+    string,
+    Record<
+      string,
+      OpenAPIV3.OperationObject & { queryList: OpenAPIV3.ParameterObject[]; paramList: OpenAPIV3.ParameterObject[] }
+    >
+  >
+}
+
+export const SUPPORTED_GENERATORS = ['typescript'] as const
+export type SupportedGenerators = typeof SUPPORTED_GENERATORS[number]

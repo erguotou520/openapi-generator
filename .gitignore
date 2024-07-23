@@ -1,5 +1,5 @@
 node_modules
-packages/**/api
-packages/**/dist
-packages/typescript/o2t.config.mjs
+api
+dist
+o2t.config.mjs
 apis/

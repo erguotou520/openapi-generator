@@ -2,13 +2,13 @@ import { resolve } from 'node:path'
 import type { OpenAPIV3 } from 'openapi-types'
 import { fetchOpenAPISchema } from './fetcher'
 import { saveTextToFile } from './file'
+import { generateSchemas } from './generators'
 import { prettier } from './prettier'
-import { generateOpenAPISchemas } from './renders/schema'
-import type { GenerateOptions } from './types'
+import type { GenerateOptions, SupportedGenerators } from './types'
 
 export const configFileName = 'o2t.config.mjs'
 
-export async function generate(options: GenerateOptions): Promise<void> {
+export async function generate(options: GenerateOptions, generator: SupportedGenerators): Promise<void> {
   const schema = await fetchOpenAPISchema(options.specUrl, options)
   if (schema) {
     // 保存 schema 到文件
@@ -63,8 +63,8 @@ export async function generate(options: GenerateOptions): Promise<void> {
         }
       }
     }
-    const output = generateOpenAPISchemas({ components, apiGroups })
+    const [output, saveFile] = generateSchemas({ components, apiGroups }, generator)
     // 保存输出到文件
-    await saveTextToFile(resolve(options.outputDir, 'schema.ts'), prettier(output))
+    await saveTextToFile(resolve(options.outputDir, saveFile), prettier(output))
   }
 }

@@ -41,7 +41,7 @@ export function getPreferredSchema<T>(schema: Record<string, T>, preferred?: str
     return null
   }
   // 优先按照 preferred 顺序查找
-  if (preferred && preferred.length) {
+  if (preferred?.length) {
     for (const key of preferred) {
       if (schema[key]) {
         return schema[key]

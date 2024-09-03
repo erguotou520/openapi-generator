@@ -31,7 +31,7 @@ export type OpenAPIs = {
           body = requestBody
         } else {
           // application/json form-data/multipart wwww-form-urlencoded
-          body = getPreferredSchema(requestBody.content)
+          body = getPreferredSchema(requestBody.content)?.schema || null
         }
       }
       // 200 201

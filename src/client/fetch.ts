@@ -1,46 +1,9 @@
-export type PromiseOr<T> = T | Promise<T>
-
-type HasRequiredFields<T> = keyof T extends never // Check if the type has no keys (empty object case)
-  ? false
-  : { [K in keyof T]-?: {} extends Pick<T, K> ? false : true }[keyof T] extends false
-    ? false
-    : true
-
-type ApiOptions = { query?: any; params?: any; body?: any }
-
-type OptionsType<T extends ApiOptions> = {
-  query: T['query'] extends never ? never : T['query']
-  params: T['params'] extends never ? never : T['params']
-  body: T['body'] extends never ? never : T['body']
-}
-
-type RequiredOptions<T extends ApiOptions> = {
-  [K in keyof OptionsType<T> as HasRequiredFields<NonNullable<OptionsType<T>[K]>> extends true
-    ? K
-    : never]: NonNullable<OptionsType<T>[K]>
-}
-
-type OptionalOptions<T extends ApiOptions> = {
-  [K in keyof OptionsType<T> as HasRequiredFields<NonNullable<OptionsType<T>[K]>> extends false
-    ? K
-    : never]?: OptionsType<T>[K]
-}
-
-type MergedOptions<T extends ApiOptions> = RequiredOptions<T> & Partial<OptionalOptions<T>>
-
-type HasAnyRequiredOption<T extends ApiOptions> = [keyof RequiredOptions<T>] extends [never] ? false : true
-
-type ExternalOptions = { signal?: AbortSignal; timeoutMs?: number }
-
-type RequestInterceptorParams = { url: string; init: CustomFetchInit }
+import type { ExternalOptions, HasAnyRequiredOption, MergedOptions, PromiseOr, ResponseType } from './share'
+export type RequestInterceptorParams = { url: string; init: CustomFetchInit }
 
 export type CustomFetchInit = Omit<RequestInit, 'headers'> & {
   headers: Record<string, string>
 }
-
-export type ResponseType<T> =
-  | { error: true; response?: Response; data: null }
-  | { error: false; data: T }
 
 export type CreateFetchClientConfig = {
   /**
@@ -76,6 +39,7 @@ export function createFetchClient<
         query: any
         params: any
         body: any
+        headers: any
         response: any
       }
     }
@@ -89,7 +53,7 @@ export function createFetchClient<
       ...args: HasAnyRequiredOption<OpenApis[M][P]> extends true
         ? [options: MergedOptions<OpenApis[M][P]> & ExternalOptions]
         : [options?: MergedOptions<OpenApis[M][P]> & ExternalOptions]
-    ): Promise<ResponseType<OpenApis[M][P]['response']>> => {
+    ): Promise<ResponseType<OpenApis[M][P]['response'], Response>> => {
       let url = path as string
       const options = args[0] || {}
 
@@ -126,6 +90,13 @@ export function createFetchClient<
         headers: contentType ? { 'Content-Type': contentType } : {},
         body: bodyData,
         ...(typeof window !== 'undefined' ? ({ credentials: 'include', mode: 'cors' } as Partial<CustomFetchInit>) : {})
+      }
+
+      // headers
+      if ('headers' in options && options.headers) {
+        for (const [key, value] of Object.entries(options.headers)) {
+          fetchInit.headers[key] = value
+        }
       }
 
       // timeout

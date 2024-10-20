@@ -1,7 +1,7 @@
 import type { OpenAPIV3 } from 'openapi-types'
 import { schemaAny } from './schema.any'
 import { schemaComment } from './schema.comment'
-import { generateSpace } from './utils'
+import { generateSpace, safeKey } from './utils'
 
 export function schemaObject(obj: OpenAPIV3.NonArraySchemaObject, spacePrefix = 0) {
   return `{
@@ -12,7 +12,7 @@ ${Object.keys(obj.properties || {})
     // 注释
     // key: type
     return `${'$ref' in item ? '' : `${generateSpace(spacePrefix + 2)}${schemaComment(item, spacePrefix + 2)}\n`}${generateSpace(spacePrefix + 2)}${
-      key
+      safeKey(key)
     }${isOptional ? '?' : ''}: ${schemaAny(item, spacePrefix + 2)},`
   })
   .join('\n')}

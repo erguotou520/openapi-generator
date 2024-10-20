@@ -1,4 +1,11 @@
-import type { CommonHeaders, ExternalOptions, HasAnyRequiredOption, MergedOptions, PromiseOr, ResponseType } from './share'
+import type {
+  CommonHeaders,
+  ExternalOptions,
+  HasAnyRequiredOption,
+  MergedOptions,
+  PromiseOr,
+  ResponseType
+} from './share'
 import { queryStringify } from './utils'
 
 export type GeneralCallbackArguments = { errMsg: string }
@@ -12,7 +19,7 @@ export type RequestTask<TData = any> = GeneralCallbackArguments & {
   [key: string]: any
 }
 
-export type OnChunkReceivedCallback = (result: { data: ArrayBuffer}) => void
+export type OnChunkReceivedCallback = (result: { data: ArrayBuffer }) => void
 
 export type RequestOptions<TData = any, U = any> = {
   url: string
@@ -35,9 +42,16 @@ export type RequestImpl<TData = any, U = any> = (option: RequestOptions<TData, U
 
 export type RequestInterceptor = (request: RequestOptions) => PromiseOr<RequestOptions | null | undefined>
 
-export type ResponseInterceptor = (request: RequestOptions, response: RequestTask) => PromiseOr<RequestTask | null | undefined>
+export type ResponseInterceptor = (
+  request: RequestOptions,
+  response: RequestTask
+) => PromiseOr<RequestTask | null | undefined>
 
-export type ErrorHandler = (request: RequestOptions, response: RequestTask | GeneralCallbackArguments | null, error: Error | null) => void
+export type ErrorHandler = (
+  request: RequestOptions,
+  response: RequestTask | GeneralCallbackArguments | null,
+  error: Error | null
+) => void
 
 export type CreateMiniappClientConfig<UserRequestImpl extends RequestImpl> = {
   /**
@@ -107,9 +121,7 @@ export function createMiniappClient<
 
       // Handle query parameters
       if ('query' in options && options.query) {
-        const queryString =
-          config?.querySerializer?.(options.query) ||
-          queryStringify(options.query)
+        const queryString = config?.querySerializer?.(options.query) || queryStringify(options.query)
         url += `?${queryString}`
       }
 
@@ -131,7 +143,7 @@ export function createMiniappClient<
         header: contentType ? { 'Content-Type': contentType } : {},
         data: (method as string).toLowerCase() === 'get' ? undefined : bodyData,
         timeout: (options as ExternalOptions).timeoutMs ?? config.requestTimeoutMs,
-        ...(typeof window !== 'undefined' ? ({ credentials: 'include', mode: 'cors' } as Partial<RequestOptions>) : {}),
+        ...(typeof window !== 'undefined' ? ({ credentials: 'include', mode: 'cors' } as Partial<RequestOptions>) : {})
       }
 
       if (config.requestInterceptor) {
@@ -142,8 +154,8 @@ export function createMiniappClient<
         }
       }
       try {
-        return new Promise(async (resolve) => {
-          requestOptions.success = async (result) => {
+        return new Promise(async resolve => {
+          requestOptions.success = async result => {
             let response = result
             if (config.responseInterceptor) {
               const changedResponse = await config.responseInterceptor(requestOptions, result)
@@ -157,6 +169,7 @@ export function createMiniappClient<
               resolve({ error: true, data: null })
               return
             }
+            console.log(response.header)
             const contentType = response.header.get('content-type')
             if (contentType?.includes('application/json')) {
               resolve({ error: false, data: await response.json() })
@@ -168,7 +181,7 @@ export function createMiniappClient<
             }
             resolve({ error: false, data: response })
           }
-          requestOptions.fail = (result) => {
+          requestOptions.fail = result => {
             config.errorHandler?.(requestOptions, result, null)
             resolve({ error: true, data: null })
           }
@@ -178,7 +191,7 @@ export function createMiniappClient<
           requestImpl(requestOptions)
         })
       } catch (error) {
-        (config.errorHandler || console.error)(requestOptions, null, error as Error)
+        ;(config.errorHandler || console.error)(requestOptions, null, error as Error)
         return { error: true, data: null }
       }
     }

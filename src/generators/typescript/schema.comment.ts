@@ -3,7 +3,7 @@ import { generateSpace } from './utils'
 
 export function schemaComment(it: OpenAPIV3.SchemaObject, spacePrefix = 0) {
   if (it.title || it.example || it.description || it.enum || it.default !== undefined) {
-    let comment = `/**\n`
+    let comment = '/**\n'
 
     if (it.title) {
       comment += `${generateSpace(spacePrefix + 1)}* ${it.title}\n`

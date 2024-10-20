@@ -6,7 +6,7 @@ import { componentsResponses } from './components.responses'
 import { componentsSchemas } from './components.schemas'
 import { schemaAny } from './schema.any'
 import { schemaComment } from './schema.comment'
-import { generateSpace, getPreferredSchema } from './utils'
+import { generateSpace, getPreferredSchema, safeKey } from './utils'
 
 export function generateOpenAPISchemas(it: GenerateSchemaOptions) {
   return `export type OpenAPIComponents = {
@@ -58,7 +58,7 @@ export type OpenAPIs = {
         ${queryList
           .map(
             query =>
-              `'${query.name}'${!query.required ? '?' : ''}: ${query.schema ? schemaAny(query.schema, 8) : preferUnknownType},`
+              `${safeKey(query.name)}${!query.required ? '?' : ''}: ${query.schema ? schemaAny(query.schema, 8) : preferUnknownType},`
           )
           .join(`\n${generateSpace(8)}`)}
       }`
@@ -70,7 +70,7 @@ export type OpenAPIs = {
         ${paramList
           .map(
             param =>
-              `'${param.name}'${!param.required ? '?' : ''}: ${param.schema ? schemaAny(param.schema, 8) : preferUnknownType},`
+              `${safeKey(param.name)}${!param.required ? '?' : ''}: ${param.schema ? schemaAny(param.schema, 8) : preferUnknownType},`
           )
           .join(`\n${generateSpace(8)}`)}
       }`

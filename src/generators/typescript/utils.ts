@@ -50,3 +50,11 @@ export function getPreferredSchema<T>(schema: Record<string, T>, preferred?: str
   }
   return schema[keys[0]]
 }
+
+// 检查key是否需要加引号
+export function safeKey(key: string) {
+  if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) {
+    return key
+  }
+  return `'${key}'`
+}

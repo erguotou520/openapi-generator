@@ -49,7 +49,7 @@ export type GenerateSchemaOptions = {
     string,
     Record<
       string,
-      OpenAPIV3.OperationObject & { queryList: OpenAPIV3.ParameterObject[]; paramList: OpenAPIV3.ParameterObject[] }
+      OpenAPIV3.OperationObject & { queryList: OpenAPIV3.ParameterObject[]; paramList: OpenAPIV3.ParameterObject[]; headerList: OpenAPIV3.ParameterObject[] }
     >
   >
 }

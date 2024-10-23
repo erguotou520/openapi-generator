@@ -24,7 +24,7 @@ export type OpenAPIs = {
   ${method}: {${Object.keys(it.apiGroups[method] || {})
     .map(path => {
       const { preferUnknownType } = getConfig()
-      const { queryList, paramList, requestBody, responses, description, summary } = it.apiGroups[method][path]
+      const { queryList, paramList, headerList, requestBody, responses, description, summary } = it.apiGroups[method][path]
       let body: null | OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject = null
       if (requestBody) {
         if ('$ref' in requestBody) {
@@ -71,6 +71,18 @@ export type OpenAPIs = {
           .map(
             param =>
               `${safeKey(param.name)}${!param.required ? '?' : ''}: ${param.schema ? schemaAny(param.schema, 8) : preferUnknownType},`
+          )
+          .join(`\n${generateSpace(8)}`)}
+      }`
+          : 'never'
+      },
+      headers: ${
+        headerList.length > 0
+          ? `{
+        ${headerList
+          .map(
+            header =>
+              `${safeKey(header.name)}${!header.required ? '?' : ''}: ${header.schema ? schemaAny(header.schema, 8) : preferUnknownType},`
           )
           .join(`\n${generateSpace(8)}`)}
       }`

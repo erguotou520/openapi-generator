@@ -23,6 +23,7 @@ export async function generate(options: GenerateOptions, generator: SupportedGen
     function extractParameters(parameters: (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[] = []) {
       const paramList: OpenAPIV3.ParameterObject[] = []
       const queryList: OpenAPIV3.ParameterObject[] = []
+      const headerList: OpenAPIV3.ParameterObject[] = []
       for (const parameter of parameters) {
         let _parameter: OpenAPIV3.ParameterObject
         if ('$ref' in parameter) {
@@ -36,9 +37,11 @@ export async function generate(options: GenerateOptions, generator: SupportedGen
           paramList.push(_parameter)
         } else if (_parameter.in === 'query') {
           queryList.push(_parameter)
+        } else if (_parameter.in === 'header') {
+          headerList.push(_parameter)
         }
       }
-      return { queryList, paramList }
+      return { queryList, paramList, headerList }
     }
 
     // paths里的api按照method分组
@@ -47,7 +50,7 @@ export async function generate(options: GenerateOptions, generator: SupportedGen
       string,
       Record<
         string,
-        OpenAPIV3.OperationObject & { queryList: OpenAPIV3.ParameterObject[]; paramList: OpenAPIV3.ParameterObject[] }
+        OpenAPIV3.OperationObject & { queryList: OpenAPIV3.ParameterObject[]; paramList: OpenAPIV3.ParameterObject[]; headerList: OpenAPIV3.ParameterObject[] }
       >
     > = {}
     for (const [path, pathItem] of Object.entries(paths)) {
@@ -57,9 +60,10 @@ export async function generate(options: GenerateOptions, generator: SupportedGen
           apiGroups[_method] = apiGroups[_method] || {}
           // @ts-ignore
           apiGroups[_method][path] = operation
-          const { queryList, paramList } = extractParameters(apiGroups[_method][path].parameters)
+          const { queryList, paramList, headerList } = extractParameters(apiGroups[_method][path].parameters)
           apiGroups[_method][path].queryList = queryList
           apiGroups[_method][path].paramList = paramList
+          apiGroups[_method][path].headerList = headerList
         }
       }
     }

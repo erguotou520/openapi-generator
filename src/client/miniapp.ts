@@ -19,7 +19,7 @@ export type RequestTask<TData = any> = GeneralCallbackArguments & {
   [key: string]: any
 }
 
-export type OnChunkReceivedCallback = (result: { data: ArrayBuffer }) => void
+export type OnChunkReceivedCallback = (result: { data: ArrayBuffer } | { res: { data: ArrayBuffer } }) => void
 
 export type RequestOptions<TData = any, U = any> = {
   url: string
@@ -31,7 +31,7 @@ export type RequestOptions<TData = any, U = any> = {
   responseType?: 'text' | 'arraybuffer'
   success?: (result: RequestTask<TData>) => void
   fail?: (result: GeneralCallbackArguments) => void
-  complete?: (result: RequestTask<TData>) => void
+  complete?: (result: RequestTask<TData> | GeneralCallbackArguments) => void
 }
 
 export type RequestImpl<TData = any, U = any> = (option: RequestOptions<TData, U>) => Promise<RequestTask<TData>> & {

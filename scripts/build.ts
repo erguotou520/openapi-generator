@@ -1,6 +1,7 @@
 import { rename } from 'node:fs/promises'
-import dts from 'bun-plugin-dts'
 // import isolatedDecl from 'bun-plugin-isolated-decl'
+import { transform } from '@swc/core'
+import dts from 'bun-plugin-dts'
 
 await Bun.build({
   entrypoints: ['./src/index.ts'],
@@ -22,3 +23,15 @@ await Bun.build({
 
 await rename('dist/index.js', 'dist/index.mjs')
 await rename('dist/client/index.js', 'dist/client/index.mjs')
+
+const { code } = await transform(await Bun.file('./dist/index.mjs').text(), {
+  sourceMaps: false,
+  minify: true,
+})
+await Bun.write('dist/index.js', code)
+
+const { code: clientCode } = await transform(await Bun.file('./dist/client/index.mjs').text(), {
+  sourceMaps: false,
+  minify: true,
+})
+await Bun.write('dist/client/index.js', clientCode)

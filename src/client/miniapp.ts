@@ -6,7 +6,7 @@ import type {
   PromiseOr,
   ResponseType
 } from './share'
-import { queryStringify } from './utils'
+import { queryStringify, urlJoin } from './utils'
 
 export type GeneralCallbackArguments = { errMsg: string }
 
@@ -127,21 +127,12 @@ export function createMiniappClient<
 
       // body
       let contentType: string | undefined
-      let bodyData: string | FormData | undefined
-      if ('body' in options) {
-        if (!(options.body instanceof FormData)) {
-          bodyData = JSON.stringify(options.body)
-          contentType = 'application/json'
-        } else {
-          bodyData = options.body
-        }
-      }
 
       let requestOptions: RequestOptions = {
         url,
         method: method as RequestOptions['method'],
         header: contentType ? { 'Content-Type': contentType } : {},
-        data: (method as string).toLowerCase() === 'get' ? undefined : bodyData,
+        data: (method as string).toLowerCase() === 'get' ? undefined : (options as any)?.body,
         timeout: (options as ExternalOptions).timeoutMs ?? config.requestTimeoutMs,
         ...(typeof window !== 'undefined' ? ({ credentials: 'include', mode: 'cors' } as Partial<RequestOptions>) : {})
       }
@@ -158,35 +149,26 @@ export function createMiniappClient<
           requestOptions.success = async result => {
             let response = result
             if (config.responseInterceptor) {
-              const changedResponse = await config.responseInterceptor(requestOptions, result)
-              if (changedResponse) {
-                response = changedResponse
+              try {
+                const changedResponse = await config.responseInterceptor(requestOptions, result)
+                if (changedResponse) {
+                  response = changedResponse
+                }
+              } catch (error) {
+                config.errorHandler?.(requestOptions, response, error as Error)
+                resolve({ error: true, response, data: null })
+                return
               }
             }
-
-            if (response.statusCode < 200 || response.statusCode >= 300) {
-              config.errorHandler?.(requestOptions, response, null)
-              resolve({ error: true, data: null })
-              return
-            }
-            console.log(response.header)
-            const contentType = response.header.get('content-type')
-            if (contentType?.includes('application/json')) {
-              resolve({ error: false, data: await response.json() })
-              return
-            }
-            if (contentType?.includes('text/plain')) {
-              resolve({ error: false, data: await response.text() })
-              return
-            }
-            resolve({ error: false, data: response })
+            resolve({ error: false, data: response.data })
+            return
           }
           requestOptions.fail = result => {
             config.errorHandler?.(requestOptions, result, null)
             resolve({ error: true, data: null })
           }
           if (config.baseURL) {
-            requestOptions.url = `${(config.baseURL || '').replace(/\/$/, '')}/${requestOptions.url.replace(/^\//, '')}`
+            requestOptions.url = urlJoin(config.baseURL, requestOptions.url)
           }
           requestImpl(requestOptions)
         })

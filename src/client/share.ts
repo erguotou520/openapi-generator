@@ -8,7 +8,12 @@ export type HasRequiredFields<T> = keyof T extends never // Check if the type ha
     ? false
     : true
 
-export type ApiOptions<Query = any, Params = any, Body = any, Headers = CommonHeaders> = { query?: Query; params?: Params; body?: Body, headers?: Headers }
+export type ApiOptions<Query = any, Params = any, Body = any, Headers = CommonHeaders> = {
+  query?: Query
+  params?: Params
+  body?: Body
+  headers?: Headers
+}
 
 export type OptionsType<T extends ApiOptions> = {
   query: T['query'] extends never ? never : T['query']

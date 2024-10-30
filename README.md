@@ -58,6 +58,8 @@ export const client = createFetchClient<OpenAPIs>({
 })
 ```
 
+If you get error when importing the client, you may need to set `compilerOptions.moduleResolution` to `bundler` and set `compilerOptions.module` to `ESNext` in your `tsconfig.json` file.
+
 6. Use the API client to make requests:
 
 ```typescript

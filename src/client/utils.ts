@@ -20,5 +20,14 @@ export function queryStringify(obj: { [key: string]: any }): string {
 
 // url path join
 export function urlJoin(...paths: string[]) {
-  return paths.map(path => path.replace(/\/+$/, '')).join('/')
+  return paths
+    .map((path, index) => {
+      let tmp = path.replace(/\/+$/, '')
+      // 从第二个元素开始,需要去掉开头的/
+      if (index) {
+        tmp = tmp.replace(/^\/+/, '')
+      }
+      return tmp
+    })
+    .join('/')
 }

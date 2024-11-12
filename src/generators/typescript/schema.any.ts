@@ -24,7 +24,7 @@ export function schemaAny(
   }
   if ('type' in it && it.type) {
     if (['string', 'number', 'integer', 'boolean'].includes(it.type)) {
-      return schemaPrimitive({ type: it.type, format: it.format })
+      return schemaPrimitive({ type: it.type, format: it.format, const: 'const' in it ? it.const : undefined })
     }
     if (it.type === 'array' || ('items' in it && it.items)) {
       return schemaArray({ type: 'array', items: it.items || [] }, spacePrefix)

@@ -89,6 +89,7 @@ export function createFetchClient<
         method: method as string,
         headers: contentType ? { 'Content-Type': contentType } : {},
         body: bodyData,
+        signal: 'signal' in options ? options.signal as AbortSignal : undefined,
         ...(typeof window !== 'undefined' ? ({ credentials: 'include', mode: 'cors' } as Partial<CustomFetchInit>) : {})
       }
 
